@@ -23,7 +23,6 @@ async function getAllProductsDAL(){
     }
 }
 
-
 async function addProductDAL(name, launchDate, srp, category_id, supplier_id){
 
     const connection = getConnection();
@@ -93,11 +92,16 @@ async function updateProductDAL(productId, name, launchDate, srp, category_id, s
 async function getProductByIdDAL(productId){
 
     const connection = getConnection();
-    const searchQuery = `SELECT name, launchDate, srp, category_id, supplier_id FROM Products WHERE productId = ?`;
+    const searchQuery = `   SELECT Products.name, Products.launchDate, Products.srp, Products.category_id, Products.supplier_id, Suppliers.name AS supplier_name, Categories.name AS category_name 
+                            FROM Products
+                            JOIN Suppliers ON Products.supplier_id = Suppliers.supplierId
+                            JOIN Categories ON Products.category_id = Categories.categoryId
+                            WHERE Products.productId = ?
+                        `;
 
     try {
-        
         let found = await connection.execute(searchQuery, [productId]);
+        
         if (found.length == 0) {
             return {    "success": false,
                         "message": "product not found"

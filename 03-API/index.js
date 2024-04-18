@@ -49,6 +49,7 @@ async function main(){
 
     app.post("/add-product", async function(req,res){
 
+        console.log(req.body)
         const {name, launchDate, srp, category_id, supplier_id} = req.body;
 
         try {
@@ -105,7 +106,6 @@ async function main(){
 
         const productId = req.params.productId;
         try{
-            console.log(productId)
             const results = await getProductByIdService(productId);
             if (results.success){
                 res.status(200)
