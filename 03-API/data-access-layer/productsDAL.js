@@ -76,10 +76,13 @@ async function updateProductDAL(productId, name, launchDate, srp, category_id, s
 
     const connection = getConnection();
 
-    const updateQuery = `UPDATE Products SET name = ?, launchDate = ?, srp = ?, category_id = ?, supplier_id = ? WHERE productId = ?`
+    console.log(productId, name, launchDate, srp, category_id, supplier_id);
+    const updateQuery = `UPDATE Products SET name = ?, launchDate = DATE(?) + INTERVAL 1 DAY, srp = ?, category_id = ?, supplier_id = ? WHERE productId = ?`
+
+    let formattedTime = launchDate.slice(0,10);
 
     try {
-        await connection.execute(updateQuery, [name, launchDate, srp, category_id, supplier_id, productId]);
+        await connection.execute(updateQuery, [name, formattedTime, srp, category_id, supplier_id, productId]);
         return {
             "success": true,
             "message": "Successful update"
@@ -92,17 +95,17 @@ async function updateProductDAL(productId, name, launchDate, srp, category_id, s
 async function getProductByIdDAL(productId){
 
     const connection = getConnection();
-    const searchQuery = `   SELECT Products.name, Products.launchDate, Products.srp, Products.category_id, Products.supplier_id, Suppliers.name AS supplier_name, Categories.name AS category_name 
+    const searchQuery = `   SELECT Products.name, Products.launchDate, Products.srp, Products.category_id, Products.supplier_id, Suppliers.name AS supplier_name, Categories.name AS category_name
                             FROM Products
                             JOIN Suppliers ON Products.supplier_id = Suppliers.supplierId
                             JOIN Categories ON Products.category_id = Categories.categoryId
-                            WHERE Products.productId = ?
+                            WHERE productId = ?
                         `;
 
     try {
         let found = await connection.execute(searchQuery, [productId]);
         
-        if (found.length == 0) {
+        if (found.length[0] == 0) {
             return {    "success": false,
                         "message": "product not found"
                     };
